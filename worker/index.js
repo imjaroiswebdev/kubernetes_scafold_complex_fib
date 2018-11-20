@@ -16,8 +16,13 @@ function fib(index) {
 
 sub.on('message', (channel, message) => {
   const result = fib(parseInt(message));
-  redisClient.hset('values', message, result);
+  redisClient.hset('values', message, result, publishResult);
 
-  redisPublisher.publish('calc_complete', result);
+  function publishResult () {
+    redisPublisher.publish('calc_complete', JSON.stringify({
+      index: message,
+      result
+    }));
+  }
 });
 sub.subscribe('insert');

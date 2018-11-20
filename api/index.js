@@ -63,7 +63,7 @@ app.get('/notify', async (req, res) => {
     "Access-Control-Allow-Origin": "*"
   });
 
-  sendNotifications(res);
+  sendNotifications(req, res);
 })
 
 app.post('/values', async (req, res) => {
@@ -86,21 +86,40 @@ app.listen(5000, err => {
 
 // Subcription to completed calculation from worker
 sub.on('message', (channel, message) => {
-  eventHistory.push(message);
+  const payload = JSON.parse(message);
+
+  const newNotification = {
+    id: eventHistory.length,
+    index: payload.index,
+    result: payload.result
+  }
+  eventHistory.push(newNotification);
 })
 sub.subscribe('calc_complete');
 
-function sendNotifications (res) {
+function sendNotifications (req, res) {
   const eventString = event => (
+    'id:' + event.id +
+    '\n' +
     'event: calc_complete' +
     '\n' +
-    'data: {result: ' + event + '}' +
+    'data: ' +
+    JSON.stringify({ index: event.index, result: event.result }) +
     '\n\n'
   );
 
-  const notifications = eventHistory.reduce((resultString, event) => {
-    return resultString + eventString(event)
-  }, '');
+  const notifications = eventHistory
+    .filter(onlySend(req))
+    .reduce((resultString, event) => {
+      return resultString + eventString(event)
+    }, '');
 
   res.send(notifications);
+}
+
+const onlySend = req => notification => {
+  const lastNotificationId = req.headers
+    && req.headers['last-event-id'] || 0; // Only notifies for new result based on the last notification sent
+
+  return notification.id > lastNotificationId;
 }
