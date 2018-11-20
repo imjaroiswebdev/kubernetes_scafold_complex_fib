@@ -7,7 +7,8 @@ class Fib extends Component {
     this.state = {
       seenIndexes: [],
       values: {},
-      index: ''
+      index: '',
+      resultMessage: ''
     };
 
     this.notificationSource = new EventSource('/api/notify');
@@ -38,11 +39,22 @@ class Fib extends Component {
   }
 
   handleNewNotification (notification) {
-    console.log(notification)
+    console.log(notification);
+
+    this.setState({
+      resultMessage: `Calculation of index ${notification.index} resulted in ${notification.result} just now ::> ${Date().toLocaleString()}`
+    }, function () {
+      this.fetchValues();
+      this.fetchIndexes();
+    })
   }
 
   handleSubmit = async event => {
     event.preventDefault();
+
+    if (!this.state.index || parseInt(this.state.index) > 40) {
+      return
+    }
 
     await axios.post('/api/values', {
       index: this.state.index
@@ -80,6 +92,10 @@ class Fib extends Component {
           />
           <button>Submit</button>
         </form>
+
+        <br />
+        <h4 style={{ color: 'red' }}>{this.state.resultMessage}</h4>
+        <br />
 
         <h3>Indexes I have seen:</h3>
         {this.renderSeenIndexes()}
