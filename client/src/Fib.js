@@ -52,7 +52,7 @@ class Fib extends Component {
   handleSubmit = async event => {
     event.preventDefault();
 
-    if (!this.state.index || parseInt(this.state.index) > 40) {
+    if (!this.state.index || parseInt(this.state.index, 10) > 40) {
       return
     }
 
