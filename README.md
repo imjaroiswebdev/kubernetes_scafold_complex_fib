@@ -33,3 +33,33 @@ $ kubectl delete -f k8s
 ```shell
 $ kubectl create secret generic postgres-password --from-literal=POSTGRES_PASSWORD=pgpass123
 ```
+
+<br />
+
+## Setting the Ingress Service
+
+Ingress controller used: __NGINX Ingress__
+
+* Repository: https://github.com/kubernetes/ingress-nginx/
+
+Mandatory command (applies to local and cloud)
+
+```shell
+$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/mandatory.yaml
+```
+
+For specific use with minikube and cloud see [docs](https://kubernetes.github.io/ingress-nginx/deploy/)
+
+<br />
+
+## Local Deployed Kubernetes Cluster Dashboard
+
+![Minikube Dashboard](./minikube_dashboard.png)
+
+<br />
+
+## App working
+
+![App working screenshot](./app_working_screenshot.png)
+
+<br />
