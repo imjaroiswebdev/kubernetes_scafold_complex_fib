@@ -30,3 +30,8 @@ spec:
               value: postgres
             - name: PGUSER
               value: postgres
+            - name: POSTGRES_PASSWORD
+              valueFrom: # this will reference the PGPASSWORD key from the pgpassword Secret Object created in the cluster
+                secretKeyRef:
+                  name: postgres-password
+                  key: POSTGRES_PASSWORD
