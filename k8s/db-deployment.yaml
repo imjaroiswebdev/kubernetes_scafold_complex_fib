@@ -12,8 +12,16 @@ spec:
       labels:
         component: db
     spec:
+      volumes: # Provisions a volume (claim) for the container inside the Pod
+        - name: db-storage
+          persistentVolumeClaim:
+            claimName: db-persistent-volume-claim
       containers:
         - name: db
           image: postgres
           ports:
             - containerPort: 5432
+          volumeMounts:
+            - name: db-storage
+              mountPath: /var/lib/postgresql/data # Only this path will be persisted
+              subPath: postgres # This will persist the data in the persistent volume inside a folder called "postgres" and this is a recommended setting for postgres
