@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      component: webclient
+  template:
+    metadata:
+      labels:
+        component: webclient
+    spec:
+      containers:
+        - name: webclient
+          image: imjarois/fib_client
+          ports:
+            - containerPort: 3000
