@@ -12,6 +12,7 @@ jspm_packages
 
 # production
 /build
+/rabbitmq-vol
 
 # Numerous always-ignore extensions
 *.diff

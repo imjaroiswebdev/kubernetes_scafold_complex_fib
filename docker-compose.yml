@@ -11,6 +11,20 @@ services:
       context: ./nginx
     ports:
       - '3050:80'
+  rabbitmq:
+    restart: always
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./workQueue
+    ports:
+      - '5672:5672'
+      - '15672:15672' # rabbitmq_management port
+    extra_hosts:
+      - 'workQueue:127.0.0.1'
+    volumes:
+      - ./rabbitmq-vol/work-queue:/var/lib/rabbitmq
+    environment:
+      - NODENAME=rabbit@workQueue
   api:
     build:
       dockerfile: Dockerfile.dev

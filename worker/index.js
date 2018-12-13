@@ -19,6 +19,10 @@ sub.on('message', (channel, message) => {
   redisClient.hset('values', message, result, publishResult);
 
   function publishResult () {
+    console.log('\n')
+    console.log('WORKER PID:', process.pid)
+    console.log('\n')
+
     redisPublisher.publish('calc_complete', JSON.stringify({
       index: message,
       result
