@@ -16,7 +16,7 @@ function fib(index) {
 
 sub.on('message', (channel, message) => {
   const result = fib(parseInt(message));
-  redisClient.hset('values', message, result, publishResult);
+  redisClient.hset('values', message, String(result), publishResult);
 
   function publishResult () {
     console.log('\n')

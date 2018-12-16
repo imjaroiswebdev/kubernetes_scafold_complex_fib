@@ -4,6 +4,7 @@ const keys = require('./keys');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const amqp = require('amqplib');
 
 const app = express();
 app.use(cors());
@@ -31,14 +32,21 @@ const redisClient = redis.createClient({
   port: keys.redisPort,
   retry_strategy: () => 1000
 });
+
+redisClient.on('error', function (error) {
+  console.log('Redis error:', error)
+});
+
 const redisPublisher = redisClient.duplicate();
 const sub = redisClient.duplicate();
+
+// RabbitMQ Publisher init
+const publishInsertM2Q = queuePub('insert'); // Publish new inserted index message to queue
 
 // TODO: Move this event history to Redis
 const eventHistory = [];
 
 // Express route handlers
-
 app.get('/', (req, res) => {
   res.send('Hi');
 });
@@ -67,22 +75,55 @@ app.get('/notify', async (req, res) => {
 })
 
 app.post('/values', async (req, res) => {
-  const index = req.body.index;
+  const index = parseInt(req.body.index);
 
-  if (parseInt(index) > 40) {
+  if (index > 40) {
     return res.status(422).send('Index too high');
   }
 
-  redisClient.hset('values', index, 'Nothing yet!');
-  redisPublisher.publish('insert', index);
-  pgClient.query('INSERT INTO values(number) VALUES($1)', [index]);
+  const stringifiedIndex = String(index);
 
-  res.send({ working: true });
+  redisClient.hset('values', stringifiedIndex, 'Nothing yet!', () => {
+    return redisPublisher.publish('insert', stringifiedIndex, () => {
+      publishInsertM2Q(stringifiedIndex);
+      pgClient.query('INSERT INTO values(number) VALUES($1)', [index]);
+
+      res.send({ working: true });
+    });
+  });
 });
 
+
+// Server running...
 app.listen(5000, err => {
   console.log('Listening');
 });
+
+// Queue message publisher
+function queuePub (queue) {
+  const rabbitConnOptions = {
+    protocol: 'amqp',
+    hostname: keys.rabbitHost,
+    port: keys.rabbitPort,
+    username: keys.rabbitUser,
+    password: keys.rabbitPassword,
+  };
+
+  return async function (message) {
+    const connection = await amqp.connect(rabbitConnOptions);
+    const ch = await connection.createChannel();
+    const ok = await ch.assertQueue(queue, { durable: true });
+    console.log("​queuePub -> ok", ok)
+
+    const messageBuffer = Buffer.from(message);
+
+    ch.sendToQueue(queue, messageBuffer, { deliveryMode: true });
+
+    ch.close()
+      .finally(() => connection.close())
+      .catch(err => console.log('Error while closgin work queue connection:', err));
+  }
+}
 
 // Subcription to completed calculation from worker
 sub.on('message', (channel, message) => {
