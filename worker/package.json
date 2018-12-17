@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "amqplib": "^0.5.3",
     "nodemon": "1.18.3",
     "redis": "2.8.0"
   },

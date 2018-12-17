@@ -49,15 +49,21 @@ services:
       - rabbitmq
 
   worker:
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
     build:
       dockerfile: Dockerfile.dev
       context: ./worker
     volumes:
       - /app/node_modules # Unbinds node_modules folder from the container
       - ./worker:/app
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - RABBIT_HOST=rabbitmq
+      - RABBIT_PORT=5672
+      - RABBIT_USER=guest
+      - RABBIT_PASSWORD=guest
+    depends_on:
+      - rabbitmq
 
   client:
     build:

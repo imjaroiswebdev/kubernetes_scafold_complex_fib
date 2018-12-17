@@ -112,7 +112,7 @@ function queuePub (queue) {
   return async function (message) {
     const connection = await amqp.connect(rabbitConnOptions);
     const ch = await connection.createChannel();
-    const ok = await ch.assertQueue(queue, { durable: true });
+    const ok = await ch.assertQueue(queue, { durable: true }); // For true apps exchanges must be used
     console.log("​queuePub -> ok", ok)
 
     const messageBuffer = Buffer.from(message);
