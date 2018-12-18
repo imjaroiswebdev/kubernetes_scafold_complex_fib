@@ -4,7 +4,7 @@ metadata:
   name: ingress-service
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: / # Trims "api" from route before hitting the actual "api" service for it to receive it as request to "/"
+    nginx.ingress.kubernetes.io/rewrite-target: / # Trims "api" or any other namespace from route before hitting the actual service for it to receive it as request to "/"
 spec:
   rules:
     - http:
@@ -17,3 +17,7 @@ spec:
             backend:
               serviceName: api-cluster-ip-service
               servicePort: 5000
+          - path: /manage-queue/
+            backend:
+              serviceName: workqueue-management-cluster-ip-service
+              servicePort: 15672

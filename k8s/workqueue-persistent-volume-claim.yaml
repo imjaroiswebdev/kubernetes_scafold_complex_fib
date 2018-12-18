@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: workqueue-persistent-volume-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  # Storage class isn't specified to use de default provided by the Kubernetes environment
+  # this will later allow to use also the default of the Cloud Provider

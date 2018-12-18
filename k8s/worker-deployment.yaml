@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: worker-deployment
 spec:
-  replicas: 1
+  replicas: 4
   selector:
     matchLabels:
       component: worker
@@ -20,3 +20,11 @@ spec:
               value: redis-cluster-ip-service
             - name: REDIS_PORT
               value: '6379'
+            - name: RABBIT_HOST
+              value: workqueue-cluster-ip-service
+            - name: RABBIT_PORT
+              value: '5672'
+            - name: RABBIT_USER
+              value: guest
+            - name: RABBIT_PASSWORD
+              value: guest
