@@ -11,6 +11,21 @@ services:
       context: ./nginx
     ports:
       - '3050:80'
+  rabbitmq:
+    restart: always
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./workQueue
+    ports:
+      - '5672:5672'
+      - '15672:15672' # rabbitmq_management port
+    extra_hosts:
+      - 'workQueue:127.0.0.1' # Allows to set workQueue a custom host for namespacing of RabbitMQ
+    volumes:
+      - ./rabbitmq-vol/work-queue:/var/lib/rabbitmq
+    environment:
+      - NODENAME=rabbit@workQueue
+
   api:
     build:
       dockerfile: Dockerfile.dev
@@ -26,16 +41,30 @@ services:
       - PGDATABASE=postgres
       - PGPASSWORD=postgres_password
       - PGPORT=5432
+      - RABBIT_HOST=rabbitmq
+      - RABBIT_PORT=5672
+      - RABBIT_USER=guest
+      - RABBIT_PASSWORD=guest
+    depends_on:
+      - rabbitmq
+
   worker:
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
     build:
       dockerfile: Dockerfile.dev
       context: ./worker
     volumes:
       - /app/node_modules # Unbinds node_modules folder from the container
       - ./worker:/app
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - RABBIT_HOST=rabbitmq
+      - RABBIT_PORT=5672
+      - RABBIT_USER=guest
+      - RABBIT_PASSWORD=guest
+    depends_on:
+      - rabbitmq
+
   client:
     build:
       dockerfile: Dockerfile.dev

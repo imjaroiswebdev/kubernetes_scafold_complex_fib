@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workqueue-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: workqueue
+  template:
+    metadata:
+      labels:
+        component: workqueue
+    spec:
+      hostname: workqueue
+      volumes:
+        - name: rabbitmq-storage
+          persistentVolumeClaim:
+            claimName: workqueue-persistent-volume-claim
+      containers:
+        - name: workqueue
+          image: imjarois/fib_workqueue
+          ports:
+            - containerPort: 5672
+            - containerPort: 15672
+          volumeMounts:
+            - name: rabbitmq-storage
+              mountPath: /var/lib/rabbitmq

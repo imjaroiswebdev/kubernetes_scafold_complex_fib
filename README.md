@@ -1,6 +1,6 @@
 # Very Complex Fibonacci Calculator
 
-> Overcomplecated Fibanacci calculator implementation.
+> Overcomplicated Fibanacci calculator implementation.
 
 This will allow me to register an scafolding template for Kubernetes Cluster configuration
 
