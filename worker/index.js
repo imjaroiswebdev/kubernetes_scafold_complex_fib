@@ -31,6 +31,7 @@ function queueSub (queue) {
   return async function () {
     const connection = await amqp.connect(rabbitConnOptions);
     const ch = await connection.createChannel();
+    ch.prefetch(1);
     const ok = await ch.assertQueue(queue, { durable: true }); // For true apps exchanges must be used
 		console.log("​queueSub -> ok", ok)
 

@@ -58,6 +58,12 @@ For specific use with minikube and cloud see [docs](https://kubernetes.github.io
 
 <br />
 
+## RabbitMQ Work Queue Manager available through /manage-queue/ route
+
+![Minikube Dashboard](./rabbitmq-manager.png)
+
+<br />
+
 ## App working
 
 ![App working screenshot](./app_working_screenshot.png)
